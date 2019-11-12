@@ -1,6 +1,6 @@
 const webpack = require('webpack');
 const devServer = require('./web/dev-server.js');
-const getConfig = require('../configs/index.js');
+const getConfig = require('../configs/index.js'); // 各平台构建配置入口
 const {startServer: startWeexLiveLoad, broadcast} = require('./weex/socket-server.js');
 const previewSocket = require('./web/web-socket.js');
 const cmlLinter = require('chameleon-linter');
@@ -8,7 +8,7 @@ const watch = require('glob-watcher');
 const fse = require('fs-extra');
 const path = require('path');
 const fs = require('fs');
-const crypto = require('crypto');
+const crypto = require('crypto'); // 加密方法
 const cmlUtils = require('chameleon-tool-utils');
 
 /**
@@ -19,7 +19,7 @@ const cmlUtils = require('chameleon-tool-utils');
 exports.getBuildPromise = async function (media, type) {
 
   let options = exports.getOptions(media, type);
-  let webpackConfig = await getConfig(options);
+  let webpackConfig = await getConfig(options); // 获取构建平台webpack配置
   //  非web和weex 并且非增量
   if (!~['web', 'weex'].indexOf(type) && options.increase !== true) {
     // 异步删除output目录
@@ -108,17 +108,17 @@ exports.getOptions = function (media, type) {
  * @param {*} isCompile   是否要编译web端 不编译web时也要启动web端服务
  */
 exports.getWebBuildPromise = async function (media, isCompile) {
-  if (media === 'dev') {
-    let options = exports.getOptions(media, 'web');
-    let webpackConfig = await getConfig(options)
+  if (media === 'dev') { // npm run dev
+    let options = exports.getOptions(media, 'web'); // 读取编译配置
+    let webpackConfig = await getConfig(options) // webpack配置
     let compiler;
     if (isCompile) {
       compiler = webpack(webpackConfig);
     }
-    return devServer({webpackConfig, options, compiler});
+    return devServer({webpackConfig, options, compiler}); // 启动web服务
   } else {
     if (isCompile) {
-      return exports.getBuildPromise(media, 'web');
+      return exports.getBuildPromise(media, 'web'); // building构建
     } else {
       return Promise.resolve();
     }
@@ -170,16 +170,16 @@ exports.startReleaseAll = async function (media) {
   startCmlLinter(media);
 }
 
-exports.startReleaseOne = async function(media, type) {
+exports.startReleaseOne = async function(media, type) { // 如果是构建，构建环境自动设置为production
   if (media === 'build') {
-    process.env.NODE_ENV = 'production';
+    process.env.NODE_ENV = 'production'; 
   }
   // 给preview使用
-  cml.activePlatform = [type];
-  if (type === 'web') {
+  cml.activePlatform = [type]; // 激活平台
+  if (type === 'web') { // web平台
     await exports.getWebBuildPromise(media, true);
-  } else {
-    let build = exports.getBuildPromise(media, type);
+  } else { // 其他平台
+    let build = exports.getBuildPromise(media, type); // 匹配构建平台配置
     // 如果dev模式再启动web服务
     if (media === 'dev') {
       await build.then(res => {

@@ -1,10 +1,10 @@
-const chalk = require('chalk');
+const chalk = require('chalk'); // chalk 包的作用是修改控制台中字符串的样式
 
 const _ = module.exports = {};
 
 let logLevel = 'none';
 
-_.setLogLevel = function(level) {
+_.setLogLevel = function(level) { // 日志等级
   logLevel = level;
 }
 

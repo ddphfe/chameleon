@@ -2,13 +2,13 @@ var path = require('path')
 var ExtractTextPlugin = require('cml-extract-css-webpack-plugin')
 var fs = require('fs');
 const fse = require('fs-extra');
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin') // 自动生成html
 let webpostcssLoader = 'postcss-loader';
-const portfinder = require('portfinder');
+const portfinder = require('portfinder'); // 自动检测下一个可用端口
 const analyzeTemplate = require('chameleon-template-parse').analyzeTemplate;
 const cmlUtils = require('chameleon-tool-utils');
 
-exports.getPostcssrcPath = function (type) {
+exports.getPostcssrcPath = function (type) { // 获取各平台.postcssrc.js文件
   return path.join(__dirname, `./postcss/${type}/.postcssrc.js`);
 }
 
@@ -254,7 +254,7 @@ exports.getMiniAppEntry = function (cmlType) {
     })
   } else {
     if (options.babelPolyfill === true) {
-      entry.common.unshift(path.join(__dirname, 'default/miniappPolyfill.js'));
+      entry.common.unshift(path.join(__dirname, 'default/miniappPolyfill.js')); // 类型校验
     }
     entry.app = path.join(projectPath, 'app/app.cml');
     let appjson = cml.utils.getJsonFileContent(path.resolve(cml.projectRoot, 'src/app/app.cml'), cmlType)
@@ -396,7 +396,7 @@ exports.getWebEntry = function (options) {
     htmlConf.console = true
     htmlConf.consolejs = '/preview-assets/didiConsole-1.0.7.min.js'
   }
-  htmlPlugins.push(new HtmlWebpackPlugin(htmlConf))
+  htmlPlugins.push(new HtmlWebpackPlugin(htmlConf)) // web构建配置
   if (options.media === 'dev') {
     let origin = path.join(__dirname, './preview.html');
     let target = path.join(cml.utils.getDevServerPath(), 'preview.html')
@@ -556,10 +556,10 @@ exports.getExcludeBabelPath = function() {
   return excludeBablePath.concat(configExcludePath);
 }
 
-exports.getGlobalCheckWhiteList = function () {
+exports.getGlobalCheckWhiteList = function () { // 全局校验白名单
   return [
     /node_modules[\/\\](mobx|vuex)/
-  ].concat(cml.config.get().globalCheckWhiteList)
+  ].concat(cml.config.get().globalCheckWhiteList) 
 }
 
 let hasCopy = false;
@@ -588,7 +588,7 @@ exports.copyWeexLiveLoadFile = function(dir, platform, media) {
 
 let webServerPort;
 let weexLiveLoadPort;
-exports.setFreePort = async function () {
+exports.setFreePort = async function () { // 设置端口号
   if (webServerPort && weexLiveLoadPort) {
     return;
   }
