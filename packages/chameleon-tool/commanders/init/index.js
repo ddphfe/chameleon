@@ -28,13 +28,13 @@ exports.register = function (commander) {
     .option('-t, --tpl [html|smarty]', 'specify project templateType, example: cml init project -t html')
     .option('-d, --demo [blank|todo]', 'specify init project demo, example: cml init project -d todo ')
   commander
-    .action(function (...args) { 
+    .action(function (...args) {
       /* eslint-disable */
       fs = require('fs');
       path = require('path');
       tpl = require('chameleon-templates'); // 模版
-      inquirer = require('inquirer');
-      ora = require('ora');
+      inquirer = require('inquirer'); // inquirer选择模板使用
+      ora = require('ora'); // 命令行环境的loading
       shelljs = require('shelljs');
       fse = require('fs-extra');
       glob = require('glob');

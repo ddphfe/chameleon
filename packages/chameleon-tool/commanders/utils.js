@@ -20,6 +20,7 @@ exports.getBuildPromise = async function (media, type) {
 
   let options = exports.getOptions(media, type);
   let webpackConfig = await getConfig(options); // 获取构建平台webpack配置
+  console.log(webpackConfig);
   //  非web和weex 并且非增量
   if (!~['web', 'weex'].indexOf(type) && options.increase !== true) {
     // 异步删除output目录
@@ -172,7 +173,7 @@ exports.startReleaseAll = async function (media) {
 
 exports.startReleaseOne = async function(media, type) { // 如果是构建，构建环境自动设置为production
   if (media === 'build') {
-    process.env.NODE_ENV = 'production'; 
+    process.env.NODE_ENV = 'production';
   }
   // 给preview使用
   cml.activePlatform = [type]; // 激活平台

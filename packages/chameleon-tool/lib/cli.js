@@ -7,7 +7,7 @@ const argv = process.argv; // 通过访问process.argv我们能轻松愉快的�
 module.exports.run = function () {
 
   var first = argv[2]; // argv第一个参数是node
-  if (first === '-v' || first === '--version' || first === '-V') {  // 查看cml版本
+  if (first === '-v' || first === '--version' || first === '-V') { // 查看cml版本
     cml.log.notice(`current running chameleon(${cml.root})`) // 打印chameleon-tool安装目录
     version(); // 打印chameleon-tool版本号
   } else { // 其他命令进入commanders文件下，匹配构建平台
@@ -20,7 +20,7 @@ module.exports.run = function () {
       let cmdList = ['init', 'dev', 'build', 'server', 'web', 'weex', 'wx', 'baidu', 'alipay', 'qq'];
       cmdList = cmdList.map(key => ({ // cmd命令各环境
         key,
-          cmd: require(`../commanders/${key}/index.js`) // eslint-disable-line 命令执行文件
+        cmd: require(`../commanders/${key}/index.js`) // eslint-disable-line 命令执行文件
       }))
 
       cmdList.forEach(item => {
@@ -33,7 +33,7 @@ module.exports.run = function () {
             .description(cmd.desc)
         );
       })
-      commander.parse(argv);
+      commander.parse(argv); // 解析用户传递过来的参数
     }
   }
 
