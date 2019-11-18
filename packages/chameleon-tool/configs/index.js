@@ -22,6 +22,7 @@ module.exports = async function (options) {
   let {type, media} = options;
   let webpackConfig;
   if (cml.config.get().extPlatform && ~Object.keys(cml.config.get().extPlatform).indexOf(type)) {
+    //扩展新的插件
     webpackConfig = getExtendConfig(options);
   } else {
     switch (type) {
@@ -32,6 +33,7 @@ module.exports = async function (options) {
         if (media == 'dev') {
           webpackConfig = getMiniAppDevConfig(options);
         } else {
+          //小程序构建相关
           webpackConfig = getMiniAppBuildConfig(options);
         }
         break;
@@ -39,6 +41,7 @@ module.exports = async function (options) {
         if (media == 'dev') {
           webpackConfig = getWebDevConfig(options);
         } else {
+            //web构建相关
           webpackConfig = getWebBuildConfig(options);
         }
         break;
@@ -46,6 +49,7 @@ module.exports = async function (options) {
         if (media == 'dev') {
           webpackConfig = getWeexDevConfig(options);
         } else {
+          //weex构建相关
           webpackConfig = getWeexBuildConfig(options);
         }
         break;

@@ -15,7 +15,7 @@ utils.createRouterFile = function (platform, media) {
     if (media === 'dev') {
       watch(routerConfigPath, { recursive: true }, function(evt, name) {
         cml.log.debug(' createRouterFile routerchange')
-        cml.event.emit('routerchange') // 更新路由配置文件
+        cml.event.emit('routerchange')
       });
     }
   } else {

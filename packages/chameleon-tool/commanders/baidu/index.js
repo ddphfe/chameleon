@@ -22,6 +22,7 @@ exports.register = function (commander) {
       if (cmd) {
         handlerCmd(cmd);
       } else {
+        //如果直接输入 cml wx 的提示
         let questions = [{
           type: 'list',
           name: 'type',

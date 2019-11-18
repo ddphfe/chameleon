@@ -28,11 +28,11 @@ exports.register = function (commander) {
     .option('-t, --tpl [html|smarty]', 'specify project templateType, example: cml init project -t html')
     .option('-d, --demo [blank|todo]', 'specify init project demo, example: cml init project -d todo ')
   commander
-    .action(function (...args) { 
+    .action(function (...args) {
       /* eslint-disable */
       fs = require('fs');
       path = require('path');
-      tpl = require('chameleon-templates'); // 模版
+      tpl = require('chameleon-templates');
       inquirer = require('inquirer');
       ora = require('ora');
       shelljs = require('shelljs');
@@ -73,7 +73,7 @@ exports.register = function (commander) {
       }
     })
 
-  commander.on('--help', function() { // 监听事件
+  commander.on('--help', function() {
     var cmd = `
   Commands:
     project   initialize a chameleon project
@@ -133,7 +133,7 @@ exports.register = function (commander) {
       }
     ]
 
-    inquirer.prompt(questions).then(answers => { // 命令框输入交互
+    inquirer.prompt(questions).then(answers => {
       let {projectName } = answers;
       let platforms = ['h5', 'weex', '微信小程序','支付宝小程序','百度小程序','qq小程序'];
       let templateType = cmdOptions.tpl;
@@ -151,7 +151,7 @@ exports.register = function (commander) {
       var packagePath = path.join(pagedir, 'package.json');
       let packageContent = JSON.parse(fs.readFileSync(packagePath, 'utf-8'));
       packageContent.name = projectName;
-      fs.writeFileSync(packagePath, JSON.stringify(packageContent, '', 2)) // 配置写入package.json
+      fs.writeFileSync(packagePath, JSON.stringify(packageContent, '', 2))
 
       // 修改配置文件
       let configFile = path.join(pagedir, 'chameleon.config.js');
@@ -212,7 +212,7 @@ exports.register = function (commander) {
       }
 
       const installSpinner = ora('npm installing...').start()
-      const install = shelljs.exec(`cd ${projectName} && npm install`, { // install 内置npm包
+      const install = shelljs.exec(`cd ${projectName} && npm install`, {
         silent: true
       })
       if (install.code === 0) {
@@ -229,9 +229,11 @@ exports.register = function (commander) {
         console.log(`${install.stderr}${install.stdout}`)
       }
     })
+
+
   }
 
-  function initPage() { // // cml init page逻辑
+  function initPage() {
     let questions = [{
       type: 'input',
       name: 'pageName',
@@ -267,7 +269,7 @@ exports.register = function (commander) {
     })
   }
 
-  function initComponent() { // cml init component逻辑
+  function initComponent() {
     let questions = [{
       type: 'list',
       name: 'componentType',
@@ -294,7 +296,7 @@ exports.register = function (commander) {
       }
     }]
 
-    inquirer.prompt(questions).then(answers => { 
+    inquirer.prompt(questions).then(answers => {
       let {componentName, componentType} = answers;
       let comdir = path.join(cml.projectRoot, `src/components/${componentName}`);
       let comPathMap = {
