@@ -13,7 +13,7 @@ module.exports = function (options) {
     root
   } = options;
 
-  var cmlLoaderConfig = require('./cml-loader.conf')({type});
+  var cmlLoaderConfig = require('./cml-loader.conf')({type}); // 从config/cml-loader.conf中获取对应的cml-loader的配置信息
 
   const miniMap = {
     wx: {
@@ -37,18 +37,18 @@ module.exports = function (options) {
   const targetObj = miniMap[type];
 
 
-  var outputPath = path.resolve(root, `dist/${type}`);
+  var outputPath = path.resolve(root, `dist/${type}`); // 打包之后输出存放的路径
   var cmlLoaders = [
 
     {
       loader: 'chameleon-loader',
-      options: { ...cmlLoaderConfig,
+      options: { ...cmlLoaderConfig, // cmlLoaderConfig的配置信息
         cmlType: type,
         media,
         check: cml.config.get().check,
         postcss: {
           config: {
-            path: path.join(cml.root, `./configs/postcss/${type}/.postcssrc.js`)
+            path: path.join(cml.root, `./configs/postcss/${type}/.postcssrc.js`) // 不同type下的postcss配置
           }
         },
         isInjectBaseStyle: cml.config.get().baseStyle[type] === true,

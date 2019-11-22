@@ -7,11 +7,13 @@ exports.desc = 'start build mode';
 exports.register = function (commander) {
   commander
     .action(function (...args) {
+      //检查配置文件 chameleon.config.js
       cml.utils.checkProjectConfig();
 
       /* eslint-disable */ 
       cml.log.startBuilding();
-      const utils = require('../utils.js'); 
+      const utils = require('../utils.js');
+
       /* eslint-disable */
       cml.media = 'build';
       utils.startReleaseAll('build');

@@ -265,11 +265,11 @@ _.getJsonFileContent = function (filePath, confType) {
     if (_.isFile(filePath)) {
       let cmlFileContent = fs.readFileSync(filePath, {
         encoding: 'utf-8'
-      });
+      }); // 读取.cml文件的内容，并对其编码
       content = _.getScriptContent({
         content: cmlFileContent,
         cmlType: 'json'
-      })
+      }) // 解析cmlFileContent中cml-type="json"的部分
       if (!content) {
         _.log.error(`The file ${filePath}is not exist <script cml-type="json"></script>`)
       }
@@ -298,17 +298,17 @@ _.getJsonFileContent = function (filePath, confType) {
 
   let jsonObject = {}
   try {
-    jsonObject = JSON.parse(content);
+    jsonObject = JSON.parse(content); // 解析<script cml-type="json"></script>中的内容
   } catch (e) {
     log.warn(`The .json file corresponding to :${filePath} is not correct`);
   }
   jsonObject = jsonObject || {};
-  let targetObject = jsonObject[confType] || {};
+  let targetObject = jsonObject[confType] || {}; // 根据confType获取对应的配置信息
   if (jsonObject.base) {
     targetObject = _.merge(jsonObject.base, targetObject)
   }
   if (_.isCli()) {
-    let fileType = _.getCmlFileType(filePath, cml.projectRoot, confType);
+    let fileType = _.getCmlFileType(filePath, cml.projectRoot, confType); // 解析cml文件的类型 app、component、page
     if (fileType === 'app') {
       targetObject.pages = targetObject.pages || [];
       // 有配置路由文件，给app.json添加pages
@@ -1177,7 +1177,7 @@ _.getCmlFileType = function(cmlFilePath, context, cmlType) {
       }
       // 是subProject npm包中的cml文件 用subProject中的router.config.json判断
       if (subProjectIndex != -1) {
-        let currentNpm = _.isString(subProject[subProjectIndex]) ? subProject[subProjectIndex] :subProject[subProjectIndex].npmName 
+        let currentNpm = _.isString(subProject[subProjectIndex]) ? subProject[subProjectIndex] : subProject[subProjectIndex].npmName
         let routerConfig = _.readsubProjectRouterConfig(context, currentNpm);
         let pageFiles = routerConfig.routes.map(item => path.join(context, 'node_modules', currentNpm, 'src', item.path + '.cml'))
         // 如果是配置的路由则是page

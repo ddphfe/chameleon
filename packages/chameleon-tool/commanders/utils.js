@@ -1,6 +1,6 @@
 const webpack = require('webpack');
 const devServer = require('./web/dev-server.js');
-const getConfig = require('../configs/index.js'); // 各平台构建配置入口
+const getConfig = require('../configs/index.js');
 const {startServer: startWeexLiveLoad, broadcast} = require('./weex/socket-server.js');
 const previewSocket = require('./web/web-socket.js');
 const cmlLinter = require('chameleon-linter');
@@ -8,7 +8,7 @@ const watch = require('glob-watcher');
 const fse = require('fs-extra');
 const path = require('path');
 const fs = require('fs');
-const crypto = require('crypto'); // 加密方法
+const crypto = require('crypto');
 const cmlUtils = require('chameleon-tool-utils');
 
 /**
@@ -17,14 +17,14 @@ const cmlUtils = require('chameleon-tool-utils');
  * @param {*} type  wx web weex
  */
 exports.getBuildPromise = async function (media, type) {
-
-  let options = exports.getOptions(media, type);
+  let options = exports.getOptions(media, type); // 获取对应media、type的webpack配置信息
+  // 打包对应平台的dist
   let webpackConfig = await getConfig(options); // 获取构建平台webpack配置
   console.log(webpackConfig);
-  //  非web和weex 并且非增量
+  //  非web和weex 并且 是全量部署：非web的校验是为了容错
   if (!~['web', 'weex'].indexOf(type) && options.increase !== true) {
     // 异步删除output目录
-    var outputpath = webpackConfig.output.path;
+    var outputpath = webpackConfig.output.path; // 打包后文件存放路径
     if (outputpath) {
       await new Promise(function(resolve, reject) {
         fse.remove(outputpath, function(err) {
@@ -44,8 +44,10 @@ exports.getBuildPromise = async function (media, type) {
   return new Promise(function(resolve, reject) {
     // watch模式
     if (media === 'dev') {
+      // dev 模式
       const compiler = webpack(webpackConfig);
       if (type === 'weex') {
+        // 开启 weex 的 watch 模式：起一个 websocket
         startWeexLiveLoad(options);
       }
       compiler.watch({
@@ -55,6 +57,7 @@ exports.getBuildPromise = async function (media, type) {
       }, (err, stats) => {
 
         if (type === 'weex') {
+          // 发送 weex_refresh 的信号
           if (!(stats && stats.compilation && stats.compilation.errors && stats.compilation.errors.length > 0)) {
             broadcast('weex_refresh');
           }
@@ -83,7 +86,7 @@ exports.getBuildPromise = async function (media, type) {
  * @param {*} type  wx web weex
  */
 exports.getOptions = function (media, type) {
-  let chameleonConfig = (cml.config.get() && cml.config.get()[type] && cml.config.get()[type][media]) || {};
+  let chameleonConfig = (cml.config.get() && cml.config.get()[type] && cml.config.get()[type][media]) || {}; // 根据type、media来遍历获得moduleIdType，e.g.chameleonConfig[wx][dev],从而决定webpack打包模块的id
 
   if (!chameleonConfig) {
     cml.log.error(`在chameleon的config中未找到 ${media}的配置参数`);
@@ -95,7 +98,7 @@ exports.getOptions = function (media, type) {
     {
       type: type,
       media,
-      root: cml.projectRoot,
+      root: cml.projectRoot, // 项目所在的路径
       buildType: 'weex' // 传递给dev-server，判断启动devserver的类型 暂时固定为weex
     }
   )
@@ -109,17 +112,17 @@ exports.getOptions = function (media, type) {
  * @param {*} isCompile   是否要编译web端 不编译web时也要启动web端服务
  */
 exports.getWebBuildPromise = async function (media, isCompile) {
-  if (media === 'dev') { // npm run dev
-    let options = exports.getOptions(media, 'web'); // 读取编译配置
-    let webpackConfig = await getConfig(options) // webpack配置
+  if (media === 'dev') {
+    let options = exports.getOptions(media, 'web');
+    let webpackConfig = await getConfig(options)
     let compiler;
     if (isCompile) {
       compiler = webpack(webpackConfig);
     }
-    return devServer({webpackConfig, options, compiler}); // 启动web服务
+    return devServer({webpackConfig, options, compiler});
   } else {
     if (isCompile) {
-      return exports.getBuildPromise(media, 'web'); // building构建
+      return exports.getBuildPromise(media, 'web');
     } else {
       return Promise.resolve();
     }
@@ -133,18 +136,18 @@ exports.getWebBuildPromise = async function (media, isCompile) {
  */
 exports.startReleaseAll = async function (media) {
   if (media === 'build') {
-    process.env.NODE_ENV = 'production';
+    process.env.NODE_ENV = 'production'; // 设置配置的环境为生产环境
   }
-  let cmlConfig = cml.config.get();
-  let allPlatform = cmlConfig.platforms;
-  let offPlatform = [];
-  let activePlatform = []; // 启动编译的platform
+  let cmlConfig = cml.config.get(); // 获取config配置
+  let allPlatform = cmlConfig.platforms; // 获取config配置中的平台信息
+  let offPlatform = []; // 关闭编译的platform：根据config中的OffPlatform所得
+  let activePlatform = []; // 启动编译的platform：根据config的OffPlatform所得
   if (media === 'dev') {
     offPlatform = cmlConfig.devOffPlatform;
   } else if (media === 'build') {
     offPlatform = cmlConfig.buildOffPlatform;
   }
-  // 获取激活平台
+  // 获取需要编译的平台
   for (let i = 0, j = allPlatform.length; i < j; i++) {
     let platform = allPlatform[i];
     if (!~offPlatform.indexOf(platform)) {
@@ -157,13 +160,14 @@ exports.startReleaseAll = async function (media) {
   // 给preview使用
   cml.activePlatform = activePlatform;
 
+  // 非web端的build
   for (let i = 0, j = activePlatform.length; i < j; i++) {
     let platform = activePlatform[i];
     if (platform !== 'web') {
       await exports.getBuildPromise(media, platform);
     }
   }
-
+  // web端的build
   await exports.getWebBuildPromise(media, isCompile);
   if (media === 'build') {
     exports.createConfigJson()
@@ -171,16 +175,16 @@ exports.startReleaseAll = async function (media) {
   startCmlLinter(media);
 }
 
-exports.startReleaseOne = async function(media, type) { // 如果是构建，构建环境自动设置为production
+exports.startReleaseOne = async function(media, type) {
   if (media === 'build') {
     process.env.NODE_ENV = 'production';
   }
   // 给preview使用
-  cml.activePlatform = [type]; // 激活平台
-  if (type === 'web') { // web平台
+  cml.activePlatform = [type];
+  if (type === 'web') {
     await exports.getWebBuildPromise(media, true);
-  } else { // 其他平台
-    let build = exports.getBuildPromise(media, type); // 匹配构建平台配置
+  } else {
+    let build = exports.getBuildPromise(media, type);
     // 如果dev模式再启动web服务
     if (media === 'dev') {
       await build.then(res => {

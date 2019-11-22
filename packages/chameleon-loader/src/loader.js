@@ -1,17 +1,17 @@
 /* eslint-disable */
 const path = require('path')
-const hash = require('hash-sum')
-const parse = require('./parser')
+const hash = require('hash-sum') // 哈希生成器
+const parse = require('./parser') // 分离文件、获取Type类型的script part、content等等
 const createHelpers = require('./helpers')
-const loaderUtils = require('loader-utils')
+const loaderUtils = require('loader-utils') //webpack工具类，用于配合loader处理文件
 const normalize = require('./utils/normalize')
 const componentNormalizerPath = normalize.lib('runtime/component-normalizer')
 const fs = require('fs');
-const getRunTimeSnippet = require('./cml-compile/runtime/index.js');
+const getRunTimeSnippet = require('./cml-compile/runtime/index.js'); //获取运行时代码片段
 
-var compileTemplate = require('chameleon-template-parse');
+var compileTemplate = require('chameleon-template-parse'); // cml模板解析
 
-var jsonHandler = require('./cml-compile/json-handle.js');
+var jsonHandler = require('./cml-compile/json-handle.js'); // cml编译器-针对不同文件类型生成.json文件，并存储json对象
 const { getScriptCode } = require('./interface-check/getScriptCode.js');
 const cmlUtils = require('chameleon-tool-utils');
 const prehandle = require('./utils/prehandle.js');
@@ -20,17 +20,17 @@ const miniAppScript = require('./miniapp-script.js');
 const loadIcon = require('./load-icon.js');
 let jsonObject = {};
 
-module.exports = function (content) {
+module.exports = function (content) {   // 此处接收到的content是.cml文件的内容
   // 记录cml组件依赖 用于extract-css 优先级排序
   if(!this._compiler._cmlDepsMap) {
     this._compiler._cmlDepsMap = {};
   }
   const componentDeps = [];
-  this._compiler._cmlDepsMap[this.resourcePath] = componentDeps;
+  this._compiler._cmlDepsMap[this.resourcePath] = componentDeps; // 全局上注册并初始化cmlDepsMap【css优先级排序】
   const self = this;
-  const filePath = this.resourcePath;
+  const filePath = this.resourcePath; //.cml文件的入口路径
   
-  const rawOptions = loaderUtils.getOptions(this);
+  const rawOptions = loaderUtils.getOptions(this); // 获取当前用户给当前loader传入的参数对象options
 
   const options = rawOptions || {};
 
@@ -53,7 +53,7 @@ module.exports = function (content) {
   const {cmlType, media, builtinNpmName, cmss = defaultCmss, isWrapComponent = true, subProject = []} = options;
   let { isInjectBaseStyle = true } = options;
   //处理拿到json对象, 使用baseStyle来配置是否注入基础样式
-  jsonObject = cmlUtils.getJsonFileContent(self.resourcePath, cmlType);
+  jsonObject = cmlUtils.getJsonFileContent(self.resourcePath, cmlType); // 获取对应文件下，对应confType的配置下的cml-type=json信息；如果是组件的话得到component:true
   
   // 处理子项目的isInjectBaseStyle
   if (subProject.length) {
@@ -84,14 +84,14 @@ module.exports = function (content) {
   }
 
   let output = ''
-  const isProduction = this.minimize || process.env.NODE_ENV === 'production'
+  const isProduction = this.minimize || process.env.NODE_ENV === 'production' // 判断是否为生产环境
 
-  const extName = path.extname(self.resourcePath);
+  const extName = path.extname(self.resourcePath); // 解析文件类型.cml/.wxml/.swan。。。
   const context = (
     this.rootContext ||
     (this.options && this.options.context) ||
     process.cwd()
-  )
+  ) // 获取项目所在路径
 
   //是否是引用的原生小程序组件  wxml文件
   const isWxmlComponent = extName === '.wxml';
@@ -100,22 +100,22 @@ module.exports = function (content) {
   const isMiniAppRawComponent = isWxmlComponent ||  isAxmlComponent || isSwanComponent;
   if(!isMiniAppRawComponent) {
     //处理script cml-type为json的内容
-    content = cmlUtils.deleteScript({content, cmlType: 'json'});
+    content = cmlUtils.deleteScript({content, cmlType: 'json'}); // 获取删除 cmlType为json之后的内容
   }
   // 如果是web端 默认添加scoped属性
   // 如果是weex端 默认添加全局样式
   //判断是否是内置组件
-  const isBuildInFile = cmlUtils.isBuildIn(filePath, cmlType, context);
+  const isBuildInFile = cmlUtils.isBuildIn(filePath, cmlType, context); // 判断是否为cml内置组件
   
-  const shortFilePath = path.relative(context, filePath).replace(/^(\.\.[\\\/])+/, '')
-  var hashNum = hash(isProduction ? (shortFilePath + '\n' + content) : shortFilePath)
+  const shortFilePath = path.relative(context, filePath).replace(/^(\.\.[\\\/])+/, '') // 获取相对于项目路径的相对路径
+  var hashNum = hash(isProduction ? (shortFilePath + '\n' + content) : shortFilePath) // 通过哈希生成器生成对应文件的hash存储值
 
-  const moduleId = 'data-v-' + hashNum
+  const moduleId = 'data-v-' + hashNum  // 每个cml文件都将对应一个唯一的id，该id可以根据文件路径名和内容hash生成，用于处理css scoped作用域
 
   const needCssSourceMap = false;
 
   //需要区分cml的类型 app componet  page 拼接不同的方法
-  var entryPath = cmlUtils.getEntryPath(self.resourcePath, context);
+  var entryPath = cmlUtils.getEntryPath(self.resourcePath, context); // 获取文件生成的路径
   // 小程序中有文件夹有@符号无法上传  决定json js wxml文件生成路径
   entryPath = cmlUtils.handleSpecialChar(entryPath);
   let type = 'page';
@@ -126,15 +126,15 @@ module.exports = function (content) {
   } else {
     if (jsonObject.component === true) {
       type = 'component';
-    }
+    } // 如果文件是在文件夹components下的，jsonObject下会设置component = true
   }
 
-  const parts = parse(content);
+  const parts = parse(content); // 解析删除了cmlType为json之后的content，【即解析 sfc】根据不同的 block 来拆解对应的内容: script、style、styles、template、customBlocks分类
   if(parts.styles.length >1) {
     throw new Error(`${self.resourcePath} statement ${parts.styles.length} style tag,but only allow one`)
   }
-  const hasScoped = parts.styles.some(({ scoped }) => scoped)
-  const templateAttrs = parts.template && parts.template.attrs && parts.template.attrs
+  const hasScoped = parts.styles.some(({ scoped }) => scoped) //  如果某个style标签包含scoped属性，则需要进行CSS Scoped处理
+  const templateAttrs = parts.template && parts.template.attrs && parts.template.attrs // 判断是否有template的属性
   const hasComment = templateAttrs && templateAttrs.comments
   const hasFunctionalTemplate = templateAttrs && templateAttrs.functional
 
@@ -155,7 +155,7 @@ module.exports = function (content) {
     hasFunctionalTemplate,
     needCssSourceMap,
     type
-  )
+  ) // 根据之前解析的相关属性来获取getRequire、getWxmlRequest
   //小程序模板后缀Map
   const miniappTplExt = {
     wx: 'wxml',
@@ -168,7 +168,7 @@ module.exports = function (content) {
   const miniCmlReg = /(\.cml|\.wx\.cml|\.alipay\.cml|\.qq\.cml|\.baidu\.cml)$/;
 
   if(isMiniAppRawComponent) {
-    miniAppRawComponentHandler.call(this);
+    miniAppRawComponentHandler.call(this);  //如果是小程序原生组件
   } else {
       //handler中改变output的值 最后返回output
       switch (cmlType) {
@@ -236,12 +236,12 @@ module.exports = function (content) {
 
   function miniAppHandler() {
     // 记录依赖
-    let npmComponents = cmlUtils.getTargetInsertComponents(self.resourcePath, cmlType, context) || [];
+    let npmComponents = cmlUtils.getTargetInsertComponents(self.resourcePath, cmlType, context) || [];  // 获取这个组件要插入的组件相关信息
     npmComponents.forEach(item=>{
       componentDeps.push(item.filePath);
-    })
+    }) // 获取组件的filePath
 
-    let newJsonObj = jsonHandler(self, jsonObject, cmlType, componentDeps) || {};
+    let newJsonObj = jsonHandler(self, jsonObject, cmlType, componentDeps) || {}; // 解析文件信息生成新的json信息
     newJsonObj.usingComponents = newJsonObj.usingComponents || {};
     let usingComponents ={} ;
 
@@ -265,13 +265,13 @@ module.exports = function (content) {
         usingComponents,
         filePath,
         isInjectBaseStyle
-      });
+      });  // 得到template的内容
 
-      let emitPath = entryPath.replace(miniCmlReg, `.${miniappTplExt[cmlType]}`)
+      let emitPath = entryPath.replace(miniCmlReg, `.${miniappTplExt[cmlType]}`)  // 触发的入口
       self.emitFile(emitPath, compileResult);
     }
 
-    // 生成json文件
+    // 生成json文件 用于存放解析出来的json内容
     let emitJsonPath = entryPath.replace(miniCmlReg, '.json');
 
     // 内置组件按需引用
@@ -303,9 +303,9 @@ module.exports = function (content) {
         ? getRequireForImport('styles', style, style.scoped)
         : getRequire('styles', style, i, style.scoped)
       output += `var __cml__style${i} = ${requireString};\n`
-    })
+    })  // getRequireForImport: 针对不同的 type 分别构造一个 import 字符串; getRequire: getRequestString
 
-    var script = parts.script && parts.script[0];
+    var script = parts.script && parts.script[0]; // 获取<script></script>的内容
     if (script) {
       var scriptRequireString = script.src
         ? getRequireForImport('script', script)
@@ -326,7 +326,7 @@ module.exports = function (content) {
     if (~self.resourcePath.indexOf('node_modules')) {
       relativePath = path.relative(self.resourcePath, path.join(context, 'node_modules'));
     } else {
-      relativePath = path.relative(self.resourcePath, path.join(context, 'src'));
+      relativePath = path.relative(self.resourcePath, path.join(context, 'src'));  // 相对路径
       if (relativePath == '..' || relativePath == '.') {
         relativePath = ''
       } else {

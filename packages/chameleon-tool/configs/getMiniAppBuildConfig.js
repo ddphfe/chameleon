@@ -6,6 +6,7 @@ var getMiniAppExportConfig = require("./component_export/getMiniAppExportConfig"
 
 module.exports = function (options) {
   let {type, media} = options;
+  //添加cml-loader和webpack的miniapp的target
   var commonConfig = getMiniAppCommonConfig(options);
   var buildConfig = {
     plugins: [
@@ -29,6 +30,7 @@ module.exports = function (options) {
   const targetObj = miniMap[type];
   if (options.minimize) {
     buildConfig.plugins = [
+        // webpack 插件优化或者压缩CSS资源
       new OptimizeCSSPlugin({
         assetNameRegExp: targetObj.cssReg,
         cssProcessorOptions: { safe: true, discardComments: { removeAll: true }, autoprefixer: false }
@@ -36,6 +38,7 @@ module.exports = function (options) {
     ]
   }
   if (media === 'export') {
+    //小程序的export文件的构建
     return getMiniAppExportConfig(merge(commonConfig, buildConfig), options);
   }
   return merge(commonConfig, buildConfig)
