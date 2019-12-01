@@ -312,7 +312,7 @@ module.exports = function (obj, __CML_ERROR__, __enableTypes__, __CHECK__DEFINES
     }
 
     if (obj.hasOwnProperty(key)) {
-      obj[key] = createWarpper(key, originFunc);
+      obj[key] =  (key, originFunc);
     } else {
       Object.getPrototypeOf(obj)[key] = createWarpper(key, originFunc);
     }

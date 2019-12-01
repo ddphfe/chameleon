@@ -21,6 +21,7 @@ module.exports = function({interfacePath, content, cmlType}) {
     }
     let methodScript = null;
     for (let i = 0;i < parts.script.length;i++) {
+      //cml-type允许使用逗号分隔指定多种类型
       if (~parts.script[i].cmlType.split(',').indexOf(cmlType)) {
         methodScript = parts.script[i];
       }

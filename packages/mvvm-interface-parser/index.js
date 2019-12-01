@@ -7,7 +7,9 @@ const path = require('path');
 
 // resolve 用于处理interface中include文件中的引用
 module.exports = function({cmlType, media, source, filePath, check }) {
+  //获取文件中interface的代码
   let interfaceResut = getInterfaceCode({interfacePath: filePath, content: source})
+  //获取对应cml-type的方法代码
   let methodResult = getMethodCode({interfacePath: filePath, content: source, cmlType})
 
   let {content: interfaceContent, devDeps: interfacedevDeps} = interfaceResut;
@@ -26,6 +28,7 @@ module.exports = function({cmlType, media, source, filePath, check }) {
 
   if (media === 'dev' && check.enable === true) {
     try {
+      //将获取到的代码通过babel进行 解析 - 转换 - 生成
       result = getCode(result, {
         cmlType,
         filePath,
