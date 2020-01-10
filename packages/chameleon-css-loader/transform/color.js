@@ -1,3 +1,6 @@
+/*
+* weex中只支持十六进制颜色 这里对常用颜色做一个映射
+*/
 const COLOR_MAP = {
   aliceblue: '#f0f8ff',
   antiquewhite: '#faebd7',

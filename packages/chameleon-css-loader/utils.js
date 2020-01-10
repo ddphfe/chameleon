@@ -29,6 +29,8 @@ _.disappearCssComment = function(content) {
     return '';
   })
 }
+
+// 获取style样式 左值右值
 _.getStyleKeyValue = function(declaration) {
   let colonIndex = declaration.indexOf(':');
   let key = declaration.slice(0, colonIndex).trim();

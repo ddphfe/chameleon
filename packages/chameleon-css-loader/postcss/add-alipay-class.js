@@ -1,6 +1,6 @@
 const postcss = require('postcss');
 const hash = require('hash-sum');
-
+// 支付宝默认没有样式隔离 通过给类名加hash实现样式隔离
 module.exports = postcss.plugin('add-alipay-class-name', function(options) {
   let { filePath} = options;
   let randomClassName = hash(filePath);

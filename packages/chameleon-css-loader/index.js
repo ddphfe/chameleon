@@ -13,6 +13,7 @@ module.exports = function(source, options) {
   }
   if (source) {
     let result;
+    // 分平台解析css
     switch (options.platform) {
       case 'web': result = webParse(source, options); break;
       case 'miniapp': result = miniParse(source, options); break;
