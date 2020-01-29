@@ -307,8 +307,9 @@ _.getJsonFileContent = function (filePath, confType) {
   if (jsonObject.base) {
     targetObject = _.merge(jsonObject.base, targetObject)
   }
+  //是否在cml运行环境中
   if (_.isCli()) {
-    let fileType = _.getCmlFileType(filePath, cml.projectRoot, confType); // 解析cml文件的类型 app、component、page
+    let fileType = _.getCmlFileType(filePath, cml.projectRoot, confType); // 解析cml文件的类型 app、component、page，通过文件路径来判断
     if (fileType === 'app') {
       targetObject.pages = targetObject.pages || [];
       // 有配置路由文件，给app.json添加pages
@@ -348,7 +349,9 @@ _.getJsonFileContent = function (filePath, confType) {
       let subProject = cml.config.get().subProject;
       if (subProject && subProject.length > 0) {
         subProject.forEach(function(item) {
+          //读取subProject的npm包名
           let npmName = _.isString(item) ? item : item.npmName;
+          //获取npm包内的router.config
           let npmRouterConfig = _.readsubProjectRouterConfig(cml.projectRoot, npmName);
           npmRouterConfig.routes && npmRouterConfig.routes.forEach(item => {
             let cmlFilePath = path.join(cml.projectRoot, 'node_modules', npmName, 'src', item.path + '.cml');
@@ -357,6 +360,7 @@ _.getJsonFileContent = function (filePath, confType) {
             if (routePath[0] === '/') {
               routePath = routePath.slice(1);
             }
+            //注册subProject包中的路由
             if (!~targetObject.pages.indexOf(routePath)) {
               targetObject.pages.push(routePath);
             } else {
@@ -1113,6 +1117,7 @@ _.getExportEntry = function (cmlType, context, entry = []) {
   /user/didi/cml/node_modules/cml-ui/toast/toast.cml to npm/cml-ui/toast/toast
  */
 _.getPureEntryName = function (cmlFilePath, cmlType, context) {
+  //获取相对于项目路径下的相对路径
   let entryPath = _.getEntryPath(cmlFilePath, context);
   // let cmlExtReg = new RegExp(`(\\.cml|\\.${cmlType}.cml)`);
   // if (cmlType === 'wx') {
@@ -1124,6 +1129,7 @@ _.getPureEntryName = function (cmlFilePath, cmlType, context) {
   // if (cmlType === 'baidu') {
   //   entryPath = entryPath.replace(/\.swan/g, '');
   // }
+  //删除文件后缀
   return _.deleteExt(entryPath);
   // return entryPath.replace(cmlExtReg, '');
 }
@@ -1143,6 +1149,7 @@ _.getEntryPath = function (filePath, context) {
   } else {
     entryName = path.relative(projectPath, filePath);
   }
+  //转换windows系统路径到linux系统
   entryName = _.handleWinPath(entryName);
   return entryName;
 }
@@ -1159,6 +1166,9 @@ _.getCmlFileType = function(cmlFilePath, context, cmlType) {
     // 如果不是cli中 统一当做组件处理,目前cli外 的页不会调用该方法
     type = 'component';
   } else {
+    /*获取无文件后缀的相对路径
+    /* /user/didi/cml/src/pages/index/index.cml to pages/index/index
+    */
     var entryName = _.getPureEntryName(cmlFilePath, cmlType, context);
     if (entryName === 'app/app') {
       type = 'app';
