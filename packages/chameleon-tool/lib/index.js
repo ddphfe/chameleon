@@ -2,11 +2,12 @@
 const path = require('path');
 const cli = require('./cli.js');
 const utils = require('./utils.js');
-const config = require('./config.js');
+const config = require('./config.js');                    //获取chameleon默认配置文件
 const log = require('./log.js');
 const argv = require('minimist')(process.argv.slice(2));
 const EventEmitter = require('events');
 
+//为cml全局变量绑定属性
 const chameleon = {};
 global.chameleon = chameleon;
 global.cml = chameleon;
@@ -24,6 +25,7 @@ cml.log.setLogLevel(cml.logLevel);
 // 设置projectName为项目根目录文件名称
 cml.config.get().projectName = path.basename(cml.projectRoot)
 
+//加载用户自定义的配置文件，配置文件通过访问cml这个全局对象来添加配置
 const configPath = path.join(cml.projectRoot, 'chameleon.config.js');
 if (cml.utils.isFile(configPath)) {
   require(configPath);

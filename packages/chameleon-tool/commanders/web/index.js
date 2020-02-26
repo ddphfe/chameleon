@@ -17,12 +17,12 @@ exports.register = function (commander) {
       cml.utils.checkProjectConfig();
       // 不能删除
       var options = args.pop(); // eslint-disable-line
-
       var cmd = args.shift();
-
+        //如果web后面有参数，则处理构建
       if (cmd) {
         handlerCmd(cmd);
       } else {
+          //如果web后面没有参数，则在命令行允许用户进行交互操作
         let questions = [{
           type: 'list',
           name: 'type',
@@ -36,7 +36,7 @@ exports.register = function (commander) {
           handlerCmd(answers.type)
         })
       }
-
+        //处理dev或者build命令
       function handlerCmd(cmd) {
         cml.media = cmd;
         utils.startReleaseOne(cmd, 'web');

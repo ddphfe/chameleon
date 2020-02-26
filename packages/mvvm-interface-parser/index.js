@@ -12,9 +12,11 @@ module.exports = function({cmlType, media, source, filePath, check }) {
   // 获取对应cml-type的方法代码
   let methodResult = getMethodCode({interfacePath: filePath, content: source, cmlType})
 
+  //content代码内容 devDeps外部文件依赖
   let {content: interfaceContent, devDeps: interfacedevDeps} = interfaceResut;
   let {content: methodContent, devDeps: methoddevDeps} = methodResult;
   let devDeps = [].concat(interfacedevDeps).concat(methoddevDeps);
+
   if (!interfaceContent) {
     throw new Error(`文件: ${filePath}未定义<script cml-type="interface"></script>`)
   }

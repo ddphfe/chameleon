@@ -182,6 +182,8 @@ exports.startReleaseOne = async function(media, type) {
   // 给preview使用
   cml.activePlatform = [type];
   if (type === 'web') {
+    //
+    //在方法内部进行build和dev判断
     await exports.getWebBuildPromise(media, true);
   } else {
     let build = exports.getBuildPromise(media, type);
