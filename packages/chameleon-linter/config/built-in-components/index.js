@@ -5,7 +5,7 @@ const parser = new Parser(null, config.getParserConfig().script);
 
 let getCml = function () {
   let result = {};
-  let inDir = config.getCurrentWorkspace() + '/node_modules/chameleon-ui-builtin/components';
+  let inDir = config.getCurrentWorkspace() + '/node_modules/chameleon-ui-builtin/components';  // 处理的文件夹地址
 
   if (fs.existsSync(inDir)) {
     Parser.flatEntrance(inDir).forEach(filterFile => {

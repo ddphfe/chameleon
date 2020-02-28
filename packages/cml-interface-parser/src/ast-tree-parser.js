@@ -49,7 +49,7 @@ function parse(astTree) {
     return ['TypeAlias', 'InterfaceDeclaration'].indexOf(bodyItem.type) > -1;
   }).forEach((bodyItem) => {
     if (bodyItem.type === 'TypeAlias') {
-      bodyItem._typeAliasInfo = getTypeAliasInfo(bodyItem);
+      bodyItem._typeAliasInfo = getTypeAliasInfo(bodyItem); // 获取别名的信息
       bodyItem._typeAliasInfo.typeName && (typeDefinations[bodyItem._typeAliasInfo.typeName] = bodyItem._typeAliasInfo);
       delete bodyItem._typeAliasInfo;
     }
@@ -69,7 +69,7 @@ function parse(astTree) {
           }) : []
         });
       } else {
-        results.vars.push(propertyItem.key.name);
+        results.vars.push(propertyItem.key.name);  //对应key的名称
         propertyItem._formattedPropertyItem = {
           name: propertyItem.key.name,
           valueType: propertyItem.value.id.name,

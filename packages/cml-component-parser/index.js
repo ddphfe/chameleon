@@ -16,20 +16,20 @@ class ComponentParser {
 
   resetPath(filePath) {
     if (path.extname(filePath) === '.cml') {
-      let cmlTreeParser = new CmlAstTreeParser({filePath}, this._options);
-      this._paseResults = cmlTreeParser.getParseResults();
-      this._fileName = path.basename(filePath, '.cml');
+      let cmlTreeParser = new CmlAstTreeParser({filePath}, this._options); // 利用cml-js-parser解析出script的部分
+      this._paseResults = cmlTreeParser.getParseResults(); // 解析出vars, methods, props, events这四类内容
+      this._fileName = path.basename(filePath, '.cml'); // 获取以.cml为后缀的对应文件的文件名
     } else {
-      let interfaceTreeParser = new InterfaceAstTreeParser({filePath}, this._options);
-      this._paseResults = interfaceTreeParser.getParseResults();
-      this._fileName = path.basename(filePath, '.interface');
+      let interfaceTreeParser = new InterfaceAstTreeParser({filePath}, this._options); // 利用cml-interface-parser解析出cml-type=interface的部分
+      this._paseResults = interfaceTreeParser.getParseResults(); // 解析出vars, methods, props, events这四类内容
+      this._fileName = path.basename(filePath, '.interface'); // 获取以.interface为后缀的对应文件的文件名
     }
 
     return this;
   }
 
   getParseResults() {
-    return this._paseResults;
+    return this._paseResults; // 获取解析之后的结果，分为四类：vars, methods, props, events
   }
 
   isResultsEmpty() {

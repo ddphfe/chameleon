@@ -10,12 +10,12 @@ function _retrieveInterfaceContent(filePath = null) {
   let include = null;
 
   try {
-    fileContent = fs.readFileSync(filePath, 'utf8');
+    fileContent = fs.readFileSync(filePath, 'utf8'); // 对应文件下的内容转换成utf8格式的内容
   } catch (err) {
     // console.warn("cml-interface-parser:", err.message);
   }
   if (fileContent) {
-    splitParts = cliUtils.splitParts({ content: fileContent });
+    splitParts = cliUtils.splitParts({ content: fileContent });  // 将编码后的内容解析出script、style、styles、template、customBlocks对应的内容
   }
   if (splitParts.customBlocks && splitParts.customBlocks.length) {
     splitParts.customBlocks.forEach(part => {
@@ -33,12 +33,12 @@ function _retrieveInterfaceContent(filePath = null) {
 
 function getContent(filePath = null) {
   let fileRawContent = ''; let interfaceContent = '';
-  fileRawContent = _retrieveInterfaceContent(filePath);
+  fileRawContent = _retrieveInterfaceContent(filePath); //检索interface部分的内容
 
   fileRawContent.replace(partRegExp, (match, type, rawAttribute, definationContent) => {
     !interfaceContent && rawAttribute.replace(paramRegExp, (attrMatch, attrName, mark, attrValue) => {
       if (attrName === 'cml-type' && attrValue === 'interface') {
-        interfaceContent = definationContent;
+        interfaceContent = definationContent; // 解析的是对应cml-type = interface部分的内容
       }
     });
   });

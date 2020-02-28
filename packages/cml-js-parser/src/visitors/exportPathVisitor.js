@@ -4,8 +4,8 @@ module.exports.exportPathVisitor = function(path) {
     return declarationPath;
   }
   if (declarationPath.isNewExpression()) {
-    let className = declarationPath.get('callee').isIdentifier() ? declarationPath.node.callee.name : '';
-    let container = path.container;
+    let className = declarationPath.get('callee').isIdentifier() ? declarationPath.node.callee.name : ''; // 获取类名
+    let container = path.container; //解析文件夹下存在的declaration类型
     return className && container.map((eleNode, index) => {
       return path.getSibling(index);
     }).filter((elePath) => {
